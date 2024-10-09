@@ -1,6 +1,7 @@
 from flask import Flask, jsonify
 import mysql.connector
 from pymongo import MongoClient
+from datetime import timedelta, datetime
 
 app = Flask(__name__)
 
@@ -13,7 +14,7 @@ mydb = mysql.connector.connect(
 )
 
 # MongoDB Connection
-client = MongoClient('localhost', 27017)  # Connect to MongoDB
+client = MongoClient('localhost', 27017)  # Connect to MongoDB on localhost
 mongo_db = client['coffee_shop']  # Use the coffee_shop database
 
 @app.route('/')
@@ -26,6 +27,15 @@ def get_mysql_sales():
     cursor = mydb.cursor(dictionary=True)
     cursor.execute("SELECT * FROM sales LIMIT 10;")
     result = cursor.fetchall()
+
+    # Convert timedelta and other non-serializable objects to string
+    for row in result:
+        for key, value in row.items():
+            if isinstance(value, timedelta):  # Convert timedelta to string
+                row[key] = str(value)
+            if isinstance(value, datetime):  # Convert datetime to string
+                row[key] = value.strftime("%Y-%m-%d %H:%M:%S")
+    
     return jsonify(result)
 
 # MongoDB Route
