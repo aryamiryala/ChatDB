@@ -1,38 +1,92 @@
+/* Center the header and upload section at the top of the page */
 .App {
   text-align: center;
+  padding-top: 20px;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 2em;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+/* Static upload section directly below the header */
+.upload-section {
+  margin-bottom: 20px;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+/* Database Explorer Layout */
+.database-explorer {
+  display: flex;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Sidebar aligned to the very left of the page */
+.sidebar {
+  width: auto; /* Dynamic width based on content */
+  min-width: 200px; /* Minimum width to ensure readability */
+  padding: 15px;
+  background-color: #f5f5f5;
+  border-radius: 5px;
+  margin: 0; /* Remove margin to align with the very left */
+  text-align: left;
+  position: fixed; /* Fix sidebar to the left edge */
+  top: 0;
+  left: 0;
+  height: 100vh; /* Full height of the viewport */
+  overflow-y: auto; /* Allow scrolling if content exceeds viewport height */
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Add a subtle shadow for separation */
+}
+
+/* Style for sidebar headings */
+.sidebar h3 {
+  margin-top: 0;
+}
+
+/* Style for sidebar list */
+.sidebar ul {
+  padding: 0;
+  list-style-type: none;
+}
+
+.sidebar li {
+  margin: 8px 0;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 3px;
+  transition: background-color 0.3s;
+}
+
+.sidebar li:hover {
+  background-color: #e0e0e0; /* Hover effect */
+}
+
+.sidebar li.selected {
+  background-color: #d0d0d0; /* Selected item background */
+  font-weight: bold; /* Bold font for selected item */
+}
+
+/* Push main content to the right to make space for fixed sidebar */
+.main-content {
+  margin-left: 220px; /* Adjust this value slightly more than sidebar min-width */
+  padding: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  overflow-y: auto; /* Allow main content to scroll independently */
+  max-height: 80vh; /* Limit height to avoid shifting the static section */
 }
 
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Enhance readability of Table Details */
+.main-content pre {
+  text-align: left;
+  font-size: 0.9em;
+  line-height: 1.5;
+  background-color: #f5f5f5;
+  padding: 15px;
+  border-radius: 5px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
