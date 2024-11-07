@@ -1,6 +1,7 @@
 // src/components/DatabaseExplorer.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import FileUpload from './FileUpload'; // Make sure to import FileUpload
 
 const DatabaseExplorer = () => {
     const [tables, setTables] = useState([]);
@@ -11,16 +12,21 @@ const DatabaseExplorer = () => {
     const [collectionDetails, setCollectionDetails] = useState(null);
 
     useEffect(() => {
-        // Fetch MySQL tables
+        fetchTables();
+        fetchCollections();
+    }, []);
+
+    const fetchTables = () => {
         axios.get('http://localhost:5001/mysql/tables')
             .then(response => setTables(response.data.tables))
             .catch(error => console.error('Error fetching tables:', error));
-        
-        // Fetch MongoDB collections
+    };
+
+    const fetchCollections = () => {
         axios.get('http://localhost:5001/mongo/collections')
             .then(response => setCollections(response.data.collections))
             .catch(error => console.error('Error fetching collections:', error));
-    }, []);
+    };
 
     const fetchTableDetails = (tableName) => {
         axios.get(`http://localhost:5001/mysql/table/${tableName}`)
@@ -43,7 +49,9 @@ const DatabaseExplorer = () => {
     return (
         <div>
             <h2>Database Explorer</h2>
-            
+
+            <FileUpload fetchTables={fetchTables} fetchCollections={fetchCollections} />
+
             <div>
                 <h3>MySQL Tables</h3>
                 <ul>
@@ -53,7 +61,7 @@ const DatabaseExplorer = () => {
                         </li>
                     ))}
                 </ul>
-                
+
                 {tableDetails && (
                     <div>
                         <h4>Table Details for {selectedTable}</h4>
@@ -75,7 +83,6 @@ const DatabaseExplorer = () => {
                 {collectionDetails && (
                     <div>
                         <h4>Collection Details for {selectedCollection}</h4>
-                        {/* Render collection details in readable JSON format */}
                         <pre>{JSON.stringify(collectionDetails, null, 2)}</pre>
                     </div>
                 )}
