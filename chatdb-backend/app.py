@@ -6,6 +6,8 @@ from datetime import timedelta, datetime
 from flask_cors import CORS
 import os
 import numpy as np
+import random
+import re
 
 # Initialize the Flask app and enable CORS
 app = Flask(__name__)
@@ -90,15 +92,26 @@ def upload_to_mongodb(df, collection_name):
     data = df.to_dict(orient="records")
     collection.insert_many(data)
 
-# Function to upload data to MySQL
+# Function to upload data to MySQL with inferred data types
 def upload_to_mysql(df, table_name):
     # Establish a new connection for each upload
     mydb = get_mysql_connection()
     cursor = mydb.cursor()
     
-    # Wrap column names in backticks to handle special characters
-    columns = ", ".join([f"`{col}` VARCHAR(255)" for col in df.columns])
+    # Infer column types and map them to MySQL types
+    dtype_mapping = {
+        'int64': 'INT',
+        'float64': 'FLOAT',
+        'object': 'VARCHAR(255)',  # Treat text columns as VARCHAR
+        'bool': 'BOOLEAN',
+        'datetime64[ns]': 'DATETIME'
+    }
+    
+    # Build a CREATE TABLE statement with inferred types
+    columns = ", ".join([f"`{col}` {dtype_mapping.get(str(dtype), 'VARCHAR(255)')}" 
+                         for col, dtype in df.dtypes.items()])
     create_table_query = f"CREATE TABLE IF NOT EXISTS `{table_name}` ({columns});"
+    
     try:
         cursor.execute(create_table_query)
         
@@ -115,6 +128,7 @@ def upload_to_mysql(df, table_name):
     finally:
         cursor.close()
         mydb.close()  # Close connection after upload
+
 
 # New routes for exploring MySQL and MongoDB databases
 
@@ -173,6 +187,133 @@ def describe_mongo_collection(collection_name):
     sample_data = replace_nan_with_none(sample_data)
     
     return jsonify({"sample_data": sample_data})
+
+# Helper function to get field information for a MySQL table
+def get_mysql_field_info(table_name):
+    mydb = get_mysql_connection()
+    cursor = mydb.cursor(dictionary=True)
+    
+    # Get column information
+    cursor.execute(f"DESCRIBE `{table_name}`;")
+    columns = cursor.fetchall()
+    cursor.close()
+    mydb.close()
+
+    # Map MySQL data types to general types
+    mysql_to_general = {
+        'int': 'int',
+        'float': 'float',
+        'double': 'float',
+        'decimal': 'float',
+        'varchar': 'string',
+        'text': 'string',
+        'char': 'string',
+        'date': 'date',
+        'datetime': 'datetime',
+        'timestamp': 'datetime'
+    }
+
+    field_info = {}
+    for column in columns:
+        field_name = column['Field']
+        field_type = re.sub(r'\(.*\)', '', column['Type']).lower()
+        general_type = mysql_to_general.get(field_type, 'string')
+        field_info[field_name] = general_type
+
+    return field_info
+
+
+ 
+
+# Helper function to get field information for a MongoDB collection
+def get_mongo_field_info(collection_name):
+    collection = mongo_db[collection_name]
+    sample_document = collection.find_one()
+
+    bson_to_general = {
+        int: 'int',
+        float: 'float',
+        str: 'string',
+        list: 'array',
+        dict: 'object',
+        bool: 'boolean'
+    }
+
+    field_info = {}
+    if sample_document:
+        for field, value in sample_document.items():
+            field_type = type(value)
+            general_type = bson_to_general.get(field_type, 'string')
+            field_info[field] = general_type
+
+    return field_info
+
+
+
+@app.route('/mysql/sample-queries/<table_name>', methods=['GET'])
+def get_mysql_sample_queries(table_name):
+    fields = get_mysql_field_info(table_name)
+
+    # Separate fields into quantitative and categorical based on inferred types
+    quantitative_fields = [field for field, field_type in fields.items() if field_type in ['int', 'float']]
+    categorical_fields = [field for field, field_type in fields.items() if field_type == 'string']
+
+    # Define query patterns with placeholders {A} and {B}
+    query_patterns = [
+        ("Total <A> by <B>", "SELECT `{B}`, SUM(`{A}`) AS total_{A} FROM `{table}` GROUP BY `{B}`;"),
+        ("Average <A> by <B>", "SELECT `{B}`, AVG(`{A}`) AS avg_{A} FROM `{table}` GROUP BY `{B}`;"),
+        ("Count of <A> by <B>", "SELECT `{B}`, COUNT(`{A}`) AS count_{A} FROM `{table}` GROUP BY `{B}`;"),
+        ("List of <A> ordered by <B>", "SELECT `{A}`, `{B}` FROM `{table}` ORDER BY `{B}` DESC LIMIT 10;")
+    ]
+
+    # Generate sample queries by replacing placeholders
+    sample_queries = []
+    for description, pattern in query_patterns:
+        if quantitative_fields and categorical_fields:
+            A = random.choice(quantitative_fields)
+            B = random.choice(categorical_fields)
+            query = (
+                pattern.replace("{A}", A)
+                       .replace("{B}", B)
+                       .replace("{table}", table_name)
+            )
+            sample_queries.append({"description": description.replace("<A>", A).replace("<B>", B), "query": query})
+
+    return jsonify({"queries": sample_queries[:3]})
+
+
+
+
+@app.route('/mongo/sample-queries/<collection_name>', methods=['GET'])
+def get_mongo_sample_queries(collection_name):
+    fields = get_mongo_field_info(collection_name)
+
+    # Separate fields into quantitative and categorical based on inferred types
+    quantitative_fields = [field for field, field_type in fields.items() if field_type in ['int', 'float']]
+    categorical_fields = [field for field, field_type in fields.items() if field_type == 'string']
+    
+    # Define query patterns with placeholders {A} and {B}, avoiding direct `$` symbols
+    query_patterns = [
+        ("Total <A> by <B>", "db.{collection}.aggregate([{{ '$group': {{ '_id': '${B}', 'total_{A}': {{ '$sum': '${A}' }} }} }}])"),
+        ("Average <A> by <B>", "db.{collection}.aggregate([{{ '$group': {{ '_id': '${B}', 'avg_{A}': {{ '$avg': '${A}' }} }} }}])"),
+        ("Count of <A> by <B>", "db.{collection}.aggregate([{{ '$group': {{ '_id': '${B}', 'count_{A}': {{ '$sum': 1 }} }} }}])"),
+        ("List of <A> ordered by <B>", "db.{collection}.find({}, {{ {A}: 1, {B}: 1 }}).sort({{ {B}: -1 }}).limit(10)")
+    ]
+
+    # Generate sample queries by replacing placeholders
+    sample_queries = []
+    for description, pattern in query_patterns:
+        if quantitative_fields and categorical_fields:
+            A = random.choice(quantitative_fields)
+            B = random.choice(categorical_fields)
+            query = (
+                pattern.replace("{A}", A)
+                       .replace("{B}", B)
+                       .replace("{collection}", collection_name)
+            )
+            sample_queries.append({"description": description.replace("<A>", A).replace("<B>", B), "query": query})
+
+    return jsonify({"queries": sample_queries[:3]})
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)

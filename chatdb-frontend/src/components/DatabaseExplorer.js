@@ -1,35 +1,18 @@
 // src/components/DatabaseExplorer.js
-import React, { useState } from 'react';
-import axios from 'axios';
+import React from 'react';
 
-const DatabaseExplorer = ({ tables, collections, fetchTables, fetchCollections }) => {
-    const [selectedTable, setSelectedTable] = useState(null);
-    const [selectedCollection, setSelectedCollection] = useState(null);
-    const [tableDetails, setTableDetails] = useState(null);
-    const [collectionDetails, setCollectionDetails] = useState(null);
-
-    const fetchTableDetails = (tableName) => {
-        axios.get(`http://localhost:5001/mysql/table/${tableName}`)
-            .then(response => {
-                setSelectedTable(tableName);
-                setTableDetails(response.data);
-                setSelectedCollection(null); // Clear any previous MongoDB selection
-                setCollectionDetails(null);
-            })
-            .catch(error => console.error('Error fetching table details:', error));
-    };
-
-    const fetchCollectionDetails = (collectionName) => {
-        axios.get(`http://localhost:5001/mongo/collection/${collectionName}`)
-            .then(response => {
-                setSelectedCollection(collectionName);
-                setCollectionDetails(response.data);
-                setSelectedTable(null); // Clear any previous MySQL selection
-                setTableDetails(null);
-            })
-            .catch(error => console.error('Error fetching collection details:', error));
-    };
-
+const DatabaseExplorer = ({
+    tables,
+    collections,
+    fetchSampleQueries,
+    sampleQueries,
+    onSelectTable,
+    onSelectCollection,
+    selectedTable,
+    selectedCollection,
+    tableDetails,
+    collectionDetails,
+}) => {
     return (
         <div className="database-explorer">
             <aside className="sidebar">
@@ -38,7 +21,7 @@ const DatabaseExplorer = ({ tables, collections, fetchTables, fetchCollections }
                     {tables.map(table => (
                         <li
                             key={table}
-                            onClick={() => fetchTableDetails(table)}
+                            onClick={() => onSelectTable(table)}
                             className={selectedTable === table ? "selected" : ""}
                         >
                             {table}
@@ -50,7 +33,7 @@ const DatabaseExplorer = ({ tables, collections, fetchTables, fetchCollections }
                     {collections.map(collection => (
                         <li
                             key={collection}
-                            onClick={() => fetchCollectionDetails(collection)}
+                            onClick={() => onSelectCollection(collection)}
                             className={selectedCollection === collection ? "selected" : ""}
                         >
                             {collection}
@@ -60,20 +43,47 @@ const DatabaseExplorer = ({ tables, collections, fetchTables, fetchCollections }
             </aside>
 
             <main className="main-content">
-                {/* Display selected table or collection details here */}
-                {selectedTable && tableDetails && (
-                    <div>
-                        <h4>Table Details for {selectedTable}</h4>
-                        <pre>{JSON.stringify(tableDetails, null, 2)}</pre>
+                <div className="content-container">
+                    {/* Left Column: Table/Collection Details */}
+                    <div className="details">
+                        {selectedTable && tableDetails && (
+                            <div>
+                                <h4>Table Details for {selectedTable}</h4>
+                                <pre>{JSON.stringify(tableDetails, null, 2)}</pre>
+                            </div>
+                        )}
+                        {selectedCollection && collectionDetails && (
+                            <div>
+                                <h4>Collection Details for {selectedCollection}</h4>
+                                <pre>{JSON.stringify(collectionDetails, null, 2)}</pre>
+                            </div>
+                        )}
                     </div>
-                )}
 
-                {selectedCollection && collectionDetails && (
-                    <div>
-                        <h4>Collection Details for {selectedCollection}</h4>
-                        <pre>{JSON.stringify(collectionDetails, null, 2)}</pre>
+                    {/* Right Column: Sample Queries */}
+                    <div className="sample-queries">
+                        {(selectedTable || selectedCollection) && (
+                            <>
+                                <button onClick={fetchSampleQueries}>Get Sample Queries</button>
+                                {sampleQueries.length > 0 && (
+                                    <div>
+                                        <h4>Sample Queries</h4>
+                                        <div className="sample-queries-content">
+                                            <ul>
+                                                {sampleQueries.map((queryObj, index) => (
+                                                    <li key={index}>
+                                                        <strong>{queryObj.description}</strong>
+                                                        <pre>{queryObj.query}</pre>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                )}
+                            </>
+                        )}
                     </div>
-                )}
+                </div>
             </main>
         </div>
     );

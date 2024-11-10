@@ -19,33 +19,28 @@ h1 {
 .database-explorer {
   display: flex;
   width: 100%;
-  max-width: 1200px;
+  max-width: 1600px;
   margin: 0 auto;
 }
 
 /* Sidebar aligned to the very left of the page */
 .sidebar {
-  width: auto; /* Dynamic width based on content */
-  min-width: 200px; /* Minimum width to ensure readability */
+  width: auto;
+  min-width: 200px;
   padding: 15px;
   background-color: #f5f5f5;
   border-radius: 5px;
-  margin: 0; /* Remove margin to align with the very left */
+  margin: 0;
   text-align: left;
-  position: fixed; /* Fix sidebar to the left edge */
+  position: fixed;
   top: 0;
   left: 0;
-  height: 100vh; /* Full height of the viewport */
-  overflow-y: auto; /* Allow scrolling if content exceeds viewport height */
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Add a subtle shadow for separation */
+  height: 100vh;
+  overflow-y: auto;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
 }
 
-/* Style for sidebar headings */
-.sidebar h3 {
-  margin-top: 0;
-}
-
-/* Style for sidebar list */
+/* Sidebar buttons styling */
 .sidebar ul {
   padding: 0;
   list-style-type: none;
@@ -54,39 +49,97 @@ h1 {
 .sidebar li {
   margin: 8px 0;
   cursor: pointer;
-  padding: 8px;
-  border-radius: 3px;
+  padding: 12px 8px;
+  border: 1px solid #d0d0d0;
+  border-radius: 5px;
+  text-align: center;
   transition: background-color 0.3s;
 }
 
 .sidebar li:hover {
-  background-color: #e0e0e0; /* Hover effect */
+  background-color: #e0e0e0;
 }
 
 .sidebar li.selected {
-  background-color: #d0d0d0; /* Selected item background */
-  font-weight: bold; /* Bold font for selected item */
+  background-color: #d0d0d0;
+  font-weight: bold;
 }
 
-/* Push main content to the right to make space for fixed sidebar */
+/* Main content area */
 .main-content {
-  margin-left: 220px; /* Adjust this value slightly more than sidebar min-width */
+  margin-left: 300px;
   padding: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  overflow-y: auto; /* Allow main content to scroll independently */
-  max-height: 80vh; /* Limit height to avoid shifting the static section */
+  max-width: 80%;
 }
 
-/* Enhance readability of Table Details */
-.main-content pre {
-  text-align: left;
-  font-size: 0.9em;
-  line-height: 1.5;
-  background-color: #f5f5f5;
-  padding: 15px;
-  border-radius: 5px;
+/* Expanded table details for better readability */
+.details {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.details pre {
+  background-color: #ffffff;
+  padding: 25px;
+  border-radius: 8px;
+  font-size: 1em;
   white-space: pre-wrap;
   word-wrap: break-word;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Light shadow for contrast */
+  max-width: 100%;
+  text-align: left; /* Aligns content to the left */
 }
+
+/* Container to hold details and sample queries side-by-side */
+.content-container {
+  display: flex;
+  width: 100%;
+  gap: 20px;
+  justify-content: center; /* Center the content within main-content */
+}
+
+/* Style for the details column (left side) */
+.details {
+  flex: 2;
+  max-width: 60%;
+}
+
+/* Container for all sample queries with a common scroll */
+.sample-queries {
+  flex: 1;
+  max-width: 40%;
+}
+
+.sample-queries-content {
+  max-height: 300px; /* Adjust this height as needed */
+  overflow-y: auto;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+  padding: 10px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Add spacing between each query */
+.sample-queries-content ul {
+  padding: 0;
+  margin: 0;
+  list-style-type: none;
+}
+
+.sample-queries-content li {
+  margin-bottom: 25px; /* Space between queries */
+}
+
+.sample-queries-content li pre {
+  margin: 0;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 5px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
