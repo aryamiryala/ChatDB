@@ -13,7 +13,8 @@ function App() {
     const [tableDetails, setTableDetails] = useState(null);
     const [collectionDetails, setCollectionDetails] = useState(null);
     const [sampleQueries, setSampleQueries] = useState([]);
-
+    const [constructQueries, setConstructQueries] = useState([]);
+    
     // Fetch MySQL tables
     const fetchTables = () => {
         axios.get('http://localhost:5001/mysql/tables')
@@ -65,6 +66,29 @@ function App() {
             .catch(error => console.error('Error fetching sample queries:', error));
     };
 
+    // Fetch sample queries with constructs for the selected table or collection
+    const fetchConstructBasedQueries = (construct) => {
+        if (!selectedTable && !selectedCollection) {
+            console.error('No table or collection selected for construct-based queries');
+            return;
+        }
+    
+        const apiUrl = selectedTable
+            ? `http://localhost:5001/mysql/sample-queries/${selectedTable}/${construct}`
+            : `http://localhost:5001/mongo/sample-queries/${selectedCollection}/${construct}`;
+    
+        axios
+            .get(apiUrl)
+            .then((response) => {
+                setConstructQueries(response.data.queries || []);
+            })
+            .catch((error) => {
+                console.error('Error fetching construct-based queries:', error);
+                setConstructQueries([]); // Reset queries in case of an error
+            });
+    };
+    
+
     // Initial load to fetch tables and collections
     useEffect(() => {
         fetchTables();
@@ -85,9 +109,12 @@ function App() {
                 tableDetails={tableDetails}
                 collectionDetails={collectionDetails}
                 sampleQueries={sampleQueries}
+                constructQueries={constructQueries}
+                setConstructQueries={setConstructQueries}
                 onSelectTable={fetchTableDetails}
                 onSelectCollection={fetchCollectionDetails}
                 fetchSampleQueries={fetchSampleQueries}
+                fetchConstructBasedQueries={fetchConstructBasedQueries} 
             />
         </div>
     );

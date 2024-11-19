@@ -5,7 +5,9 @@ const DatabaseExplorer = ({
     tables,
     collections,
     fetchSampleQueries,
+    fetchConstructBasedQueries,
     sampleQueries,
+    constructQueries,
     onSelectTable,
     onSelectCollection,
     selectedTable,
@@ -60,7 +62,7 @@ const DatabaseExplorer = ({
                         )}
                     </div>
 
-                    {/* Right Column: Sample Queries */}
+                    {/* Middle Column: Sample Queries */}
                     <div className="sample-queries">
                         {(selectedTable || selectedCollection) && (
                             <>
@@ -83,10 +85,36 @@ const DatabaseExplorer = ({
                             </>
                         )}
                     </div>
+
+                    {/* Right Column: Construct-Based Queries */}
+                    <div className="construct-based-queries">
+                        <h4>Construct-Based Queries</h4>
+                        <div className="construct-buttons">
+                            <button onClick={() => fetchConstructBasedQueries('group_by')}>Group By</button>
+                            <button onClick={() => fetchConstructBasedQueries('order_by')}>Order By</button>
+                            <button onClick={() => fetchConstructBasedQueries('having')}>Having</button>
+                            <button onClick={() => fetchConstructBasedQueries('join')}>Join</button>
+                        </div>
+                        {constructQueries.length > 0 ? (
+                            <div className="construct-queries-content">
+                                <ul>
+                                    {constructQueries.map((queryObj, index) => (
+                                        <li key={index}>
+                                            <strong>{queryObj.description}</strong>
+                                            <pre>{JSON.stringify(queryObj.query, null, 2)}</pre>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ) : (
+                            <p>No construct-based queries available</p>
+                        )}
+                    </div>
                 </div>
             </main>
         </div>
     );
 };
+
 
 export default DatabaseExplorer;

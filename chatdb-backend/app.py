@@ -223,8 +223,6 @@ def get_mysql_field_info(table_name):
     return field_info
 
 
- 
-
 # Helper function to get field information for a MongoDB collection
 def get_mongo_field_info(collection_name):
     collection = mongo_db[collection_name]
@@ -282,6 +280,47 @@ def get_mysql_sample_queries(table_name):
     return jsonify({"queries": sample_queries[:3]})
 
 
+@app.route('/mysql/sample-queries/<table_name>/<construct>', methods=['GET'])
+def get_mysql_sample_queries_with_construct(table_name, construct):
+    fields = get_mysql_field_info(table_name)
+
+    # Separate fields into quantitative and categorical based on inferred types
+    quantitative_fields = [field for field, field_type in fields.items() if field_type in ['int', 'float']]
+    categorical_fields = [field for field, field_type in fields.items() if field_type == 'string']
+
+    # Define query templates for constructs
+    construct_query_patterns = {
+        "group_by": ("Count of <A> by <B>", "SELECT `{B}`, COUNT(`{A}`) AS count_{A} FROM `{table}` GROUP BY `{B}`;"),
+        "order_by": ("List of <A> ordered by <B>", "SELECT `{A}`, `{B}` FROM `{table}` ORDER BY `{B}` DESC LIMIT 10;"),
+        "having": ("Count of <A> by <B> with HAVING clause", 
+                   "SELECT `{B}`, COUNT(`{A}`) AS count_{A} FROM `{table}` GROUP BY `{B}` HAVING COUNT(`{A}`) > 1;"),
+        "join": ("Join <A> from <B>", 
+                 "SELECT t1.`{A}`, t2.`{B}` FROM `{table}` t1 JOIN `{table}` t2 ON t1.`{A}` = t2.`{A}`;")
+    }
+
+    # Check if the construct is supported
+    if construct not in construct_query_patterns:
+        return jsonify({"error": f"Unsupported construct: {construct}"}), 400
+
+    # Get the construct-specific pattern
+    description_template, query_template = construct_query_patterns[construct]
+
+    # Generate multiple queries based on the fields
+    sample_queries = []
+    for _ in range(min(3, len(quantitative_fields) * len(categorical_fields))):  # Limit to 3 queries
+        if quantitative_fields and categorical_fields:
+            A = random.choice(quantitative_fields)
+            B = random.choice(categorical_fields)
+            query = (
+                query_template.replace("{A}", A)
+                              .replace("{B}", B)
+                              .replace("{table}", table_name)
+            )
+            description = description_template.replace("<A>", A).replace("<B>", B)
+            sample_queries.append({"description": description, "query": query})
+
+    # Return the generated queries
+    return jsonify({"queries": sample_queries})
 
 
 @app.route('/mongo/sample-queries/<collection_name>', methods=['GET'])
@@ -292,7 +331,7 @@ def get_mongo_sample_queries(collection_name):
     quantitative_fields = [field for field, field_type in fields.items() if field_type in ['int', 'float']]
     categorical_fields = [field for field, field_type in fields.items() if field_type == 'string']
     
-    # Define query patterns with placeholders {A} and {B}, avoiding direct `$` symbols
+    # Define query patterns with placeholders {A} and {B}
     query_patterns = [
         ("Total <A> by <B>", "db.{collection}.aggregate([{{ '$group': {{ '_id': '${B}', 'total_{A}': {{ '$sum': '${A}' }} }} }}])"),
         ("Average <A> by <B>", "db.{collection}.aggregate([{{ '$group': {{ '_id': '${B}', 'avg_{A}': {{ '$avg': '${A}' }} }} }}])"),
@@ -314,6 +353,105 @@ def get_mongo_sample_queries(collection_name):
             sample_queries.append({"description": description.replace("<A>", A).replace("<B>", B), "query": query})
 
     return jsonify({"queries": sample_queries[:3]})
+
+
+@app.route('/mongo/sample-queries/<collection>/<construct>', methods=['GET'])
+def get_mongo_sample_queries_with_construct(collection, construct):
+    fields = get_mongo_field_info(collection)
+
+    # Separate fields into quantitative and categorical based on inferred types
+    quantitative_fields = [field for field, field_type in fields.items() if field_type in ['int', 'float']]
+    categorical_fields = [field for field, field_type in fields.items() if field_type == 'string']
+
+    # Define construct-based query templates
+    construct_query_patterns = {
+        "group_by": ("Group by <B> and count <A>",
+                     "db.{collection}.aggregate([{{ '$group': {{ '_id': '${B}', 'count_{A}': {{ '$sum': 1 }} }} }}])"),
+        "order_by": ("List <A> ordered by <B>",
+                     "db.{collection}.find({}, {{ {A}: 1, {B}: 1 }}).sort({{ {B}: -1 }}).limit(10)"),
+        "having": ("Group by <B> with count > 1",
+                   "db.{collection}.aggregate([{{ '$group': {{ '_id': '${B}', 'count': {{ '$sum': 1 }} }} }}, {{ '$match': {{ 'count': {{ '$gt': 1 }} }} }}])"),
+        "join": ("Join <collection> with <from_collection>",
+                 "db.{collection}.aggregate([{{ '$lookup': {{ 'from': '<from_collection>', 'localField': '<local_field>', 'foreignField': '<foreign_field>', 'as': 'joined_results' }} }}])")
+    }
+
+    # Validate construct
+    if construct not in construct_query_patterns:
+        return jsonify({"error": f"Unsupported construct: {construct}"}), 400
+
+    sample_queries = []
+
+    if construct == "join":
+        # Generate 3 examples of join queries
+        for _ in range(3):  # Generate three examples
+            random_field_1 = random.choice(list(fields.keys()))
+            random_field_2 = random.choice(list(fields.keys()))
+            query = {
+                "$lookup": {
+                    "from": "enrollments",  # Target collection for this example
+                    "localField": random_field_1,  # Random field from the current collection
+                    "foreignField": random_field_2,  # Random field from the target collection
+                    "as": "joined_results"
+                }
+            }
+            description = f"Join `{collection}` with `enrollments` on `{collection}.{random_field_1} = enrollments.{random_field_2}`"
+            sample_queries.append({"description": description, "query": query})
+    else:
+        # Generate other construct queries
+        quantitative_fields = [field for field, field_type in fields.items() if field_type in ['int', 'float']]
+        categorical_fields = [field for field, field_type in fields.items() if field_type == 'string']
+
+        if quantitative_fields and categorical_fields:
+            for _ in range(3):  # Generate three examples
+                A = random.choice(quantitative_fields)
+                B = random.choice(categorical_fields)
+                description_template, query_template = construct_query_patterns[construct]
+                query = (
+                    query_template.replace("{A}", A)
+                                  .replace("{B}", B)
+                                  .replace("{collection}", collection)
+                )
+                description = description_template.replace("<A>", A).replace("<B>", B)
+                sample_queries.append({"description": description, "query": query})
+
+    return jsonify({"queries": sample_queries})
+
+
+
+@app.route('/mongo/join', methods=['POST'])
+def perform_mongo_join():
+    data = request.json  # Get data from the POST request
+    collection = data.get("collection")  # Source collection
+    from_collection = data.get("from_collection")  # Target collection
+    local_field = data.get("local_field")  # Local field in source collection
+    foreign_field = data.get("foreign_field")  # Foreign field in target collection
+
+    # Ensure all required fields are present
+    if not all([collection, from_collection, local_field, foreign_field]):
+        return jsonify({"error": "Missing required fields"}), 400
+
+    # Build the $lookup query
+    query = [
+        {
+            "$lookup": {
+                "from": from_collection,
+                "localField": local_field,
+                "foreignField": foreign_field,
+                "as": "joined_results"  # Output field for joined data
+            }
+        }
+    ]
+
+    # Execute the query
+    try:
+        results = list(mongo_db[collection].aggregate(query))
+        # Convert ObjectId to string for JSON compatibility
+        for result in results:
+            result["_id"] = str(result["_id"])
+        return jsonify(results)
+    except Exception as e:
+        return jsonify({"error": f"Failed to perform join: {str(e)}"}), 500
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)
