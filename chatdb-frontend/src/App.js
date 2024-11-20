@@ -1,5 +1,6 @@
 // src/App.js
 import React from 'react';
+import './App.css';
 import DatabaseExplorer from './components/DatabaseExplorer';
 
 function App() {

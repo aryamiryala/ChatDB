@@ -1,6 +1,103 @@
 .App {
+  display: flex;
+  flex-direction: column;
+  align-items: center;   
+  justify-content: center;
   text-align: center;
+  min-height: 100vh;
+  padding: 20px; 
+  background-color: #f9f9f9;
+  font-family: Georgia, sans-serif;
 }
+
+.App h1 {
+  font-size: 3rem; 
+  color: #333; 
+  margin-bottom: 20px; 
+}
+
+.file-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 20px; /* Space between items */
+  padding: 20px;
+}
+
+.file-upload h2 {
+  margin-bottom: 20px; /* Space below the heading */
+}
+
+.file-upload label {
+  font-weight: bold;
+  margin-bottom: 5px;
+  margin-right: 5px; 
+}
+
+.file-upload input[type="file"],
+.file-upload select,
+.file-upload button {
+  width: 100%;               
+  max-width: 300px;          
+  padding: 10px;             
+  font-size: 1rem;          
+  margin-bottom: 15px;    
+  margin-left: 10px;   
+  border-radius: 8px;        
+  border: 1px solid #ccc;    
+}
+
+.form-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px; /* Space between form groups */
+}
+
+.form-group label {
+  font-weight: bold;
+  margin-right: 10px; /* Space between label and input */
+  width: 100px; /* Fixed width for labels to align inputs */
+}
+
+.file-input {
+  display: none; /* Hide the default file input */
+}
+
+.custom-file-label {
+  background-color: #0d4175;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.custom-file-label:hover {
+  background-color: #357ABD;
+}
+
+.form-group input[type="file"],
+.form-group select {
+    flex: 1; /* Allows the input to take remaining space */
+    padding: 8px; /* Adds padding for better appearance */
+    max-width: 300px; /* Optional: control the max width */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+
+
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 300px; 
+}
+
+
 
 .App-logo {
   height: 40vmin;
@@ -27,6 +124,33 @@
 .App-link {
   color: #61dafb;
 }
+
+button {
+  background-color: #0a3a6d; 
+  padding: 8px 16px; 
+  font-size: 1rem;  
+  font-weight: bold;   
+  color: #fff;               
+  border: none;
+  border-radius: 20px !important; 
+  cursor: pointer;
+  font-family: sans-serif;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #357ABD;        
+  color: #ffffff;                   
+  border-color: #357ABD;           
+}
+
+button:active {
+  transform: scale(0.96);           
+}
+
+
+
+
 
 @keyframes App-logo-spin {
   from {

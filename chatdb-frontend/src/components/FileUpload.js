@@ -44,22 +44,32 @@ const FileUpload = ({ fetchTables, fetchCollections }) => {
 
     return (
         <div className="file-upload">
-            <h2>Upload Dataset</h2>
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label>Select File: </label>
-                    <input type="file" onChange={handleFileChange} />
-                </div>
-                <div>
-                    <label>Select Database: </label>
-                    <select value={database} onChange={handleDatabaseChange}>
-                        <option value="mysql">MySQL</option>
-                        <option value="mongodb">MongoDB</option>
-                    </select>
-                </div>
-                <button type="submit">Upload</button>
-            </form>
+    <h2>Upload Dataset</h2>
+    <form onSubmit={handleSubmit}>
+        <div className="form-group">
+            <label>Select File:</label>
+            <label className="custom-file-label" htmlFor="file-input">Choose File</label>
+            <input 
+                type="file" 
+                id="file-input" 
+                onChange={handleFileChange} 
+                className="file-input" 
+            />
+            {file && <span className="file-name">{file.name}</span>}
         </div>
+        
+        <div className="form-group">
+            <label>Select Database:</label>
+            <select value={database} onChange={handleDatabaseChange}>
+                <option value="mysql">MySQL</option>
+                <option value="mongodb">MongoDB</option>
+            </select>
+        </div>
+        
+        <button type="submit">Upload</button>
+    </form>
+</div>
+
     );
 };
 
