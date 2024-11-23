@@ -12,7 +12,7 @@ import re
 # Initialize the Flask app and enable CORS
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # Set limit to 100 MB
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 # MongoDB Connection (kept as a persistent connection)
 client = MongoClient('localhost', 27017)  # Connect to MongoDB on localhost
@@ -26,6 +26,7 @@ def get_mysql_connection():
         password="dsci@551-Tuesday-Section",  # Replace with your MySQL password
         database="ChatDB"  # Your MySQL database name
     )
+
 
 # Helper function to replace NaN values with None in a dictionary
 def replace_nan_with_none(data):
@@ -202,6 +203,10 @@ def get_mysql_field_info(table_name):
     # Map MySQL data types to general types
     mysql_to_general = {
         'int': 'int',
+        'tinyint': 'int',
+        'smallint': 'int',
+        'mediumint': 'int',
+        'bigint': 'int',
         'float': 'float',
         'double': 'float',
         'decimal': 'float',
@@ -210,7 +215,9 @@ def get_mysql_field_info(table_name):
         'char': 'string',
         'date': 'date',
         'datetime': 'datetime',
-        'timestamp': 'datetime'
+        'timestamp': 'datetime',
+        'time': 'time',
+        'year': 'int'
     }
 
     field_info = {}
@@ -252,6 +259,9 @@ def get_mongo_field_info(collection_name):
 def get_mysql_sample_queries(table_name):
     fields = get_mysql_field_info(table_name)
 
+    if not fields:
+        return jsonify({"error": f"No fields found for table: {table_name}"}), 404
+
     # Separate fields into quantitative and categorical based on inferred types
     quantitative_fields = [field for field, field_type in fields.items() if field_type in ['int', 'float']]
     categorical_fields = [field for field, field_type in fields.items() if field_type == 'string']
@@ -282,6 +292,7 @@ def get_mysql_sample_queries(table_name):
 
 @app.route('/mysql/sample-queries/<table_name>/<construct>', methods=['GET'])
 def get_mysql_sample_queries_with_construct(table_name, construct):
+    print(f"Received request for table: {table_name}")
     fields = get_mysql_field_info(table_name)
 
     # Separate fields into quantitative and categorical based on inferred types
