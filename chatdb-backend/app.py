@@ -1,4 +1,8 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, redirect, url_for
+from flask_wtf import FlaskForm
+from wtforms import StringField, SubmitField
+from wtforms.validators import DataRequired
+import random
 import mysql.connector
 from pymongo import MongoClient
 import pandas as pd
@@ -434,7 +438,7 @@ def perform_mongo_join():
     data = request.json  # Get data from the POST request
     collection = data.get("collection")  # Source collection
     from_collection = data.get("from_collection")  # Target collection
-    local_field = data.get("local_field")  # Local field in source collection
+    local_field = data.get("local_field")  # Local field in source collection#755082
     foreign_field = data.get("foreign_field")  # Foreign field in target collection
 
     # Ensure all required fields are present
@@ -464,5 +468,7 @@ def perform_mongo_join():
         return jsonify({"error": f"Failed to perform join: {str(e)}"}), 500
 
 
+
+
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5001)
+    app.run(port=5001, debug=True)

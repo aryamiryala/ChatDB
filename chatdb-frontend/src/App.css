@@ -1,4 +1,3 @@
-/* Center the header and upload section at the top of the page */
 .App {
   display: flex;
   flex-direction: column;
@@ -18,499 +17,295 @@
   font-weight: bold;
 }
 
-.upload-section {
+.App h2 {
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+
+
+.explorer-container {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start; /* Align items to the start */
-  gap: 20px; /* Space between items */
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+/* Sidebar styles */
+.sidebar {
+  width: 250px;
+  background: white;
   padding: 20px;
-  max-width: 400px; /* Limit the width */
-  background-color: #ffffff; /* White background for the card */
-  border: 1px solid rgb(221, 220, 220); /* Light gray border */
-  border-radius: 8px; /* Rounded corners */
+  border-right: 1px solid #eee;
 }
 
-.header-upload-container {
-  display: flex;
-  flex-direction: column; /* Ensure items stack vertically */
-  align-items: flex-start; /* Align all children to the left */
-  justify-content: flex-start; /* Start at the top */
-  gap: 20px; /* Add space between elements */
-  width: 100%;
-  padding-left: 20px; /* Optional: Add padding to match the sidebar */
+.sidebar-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
 }
 
-.file-upload h2 {
-  margin-bottom: 20px; /* Space below the heading */
+.section-header {
+  font-size: 16px;
+  font-weight: 500;
+  margin: 16px 0 8px;
 }
 
-
-.file-upload label {
-  font-weight: bold;
-  font-size: 0.9rem;
-  margin-bottom: 5px;
-  margin-right: 0; 
+.table-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
-.file-upload input[type="file"],
-.file-upload select {
-  width: 100%; /* Full width within the container */
-  max-width: 350px; /* Adjust max width */
-  padding: px;
-  font-size: 1rem;
-  border-radius: 8px;
-  border: 1px solid #ccc;  
-}
-
-.file-upload button {
-  background-color: #2763a3; /* Blue background */
-  color: #fff; /* White text */
-  padding: 10px 16px; /* Padding for better size */
-  border: none; /* Remove default borders */
-  border-radius: 8px; /* Rounded corners */
-  font-size: 0.9rem; /* Slightly smaller font */
-  font-weight: bold; /* Bold text */
-  cursor: pointer; /* Pointer cursor on hover */
-  
-  width: 100px; /* Fixed small width */
-  text-align: center; /* Center the text */
-  transition: background-color 0.3s, transform 0.2s; 
-}
-
-.file-upload button:hover {
-  background-color: #0056b3; /* Darker blue on hover */
-}
-
-.file-upload form {
-  display: flex;
-  flex-direction: column; /* Stack form elements vertically */
-  gap: 15px; /* Add spacing between each form element */
-}
-
-.file-upload label {
-  font-weight: bold;
-  margin-bottom: 5px; /* Spacing below labels */
-}
-
-.file-upload input[type="file"],
-.file-upload select {
-  width: 100%; /* Full width */
-  max-width: 300px; /* Adjust width */
-  padding: 10px;
-  font-size: 1rem;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-}
-
-
-.file-upload h2 {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  gap: 10px; /* Space for icon */
-}
-
-.file-upload h2::before {
-  content: "📤"; /* Upload icon */
-  font-size: 1.5rem;
-}
-
-.form-group {
-  display: flex;
-  align-items: center;
-  margin-bottom: 15px; /* Space between form groups */
-}
-
-.form-group label {
-  font-weight: bold;
-  margin-right: 10px; /* Space between label and input */
-  width: 100px; /* Fixed width for labels to align inputs */
-}
-
-.custom-file-label {
-  background-color: #0d4175;
-  color: #fff;
-  padding: 8px 16px;
-  border-radius: 5px;
+.table-item {
+  padding: 8px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  color: #4b5563;
+  border-radius: 4px;
+  margin-bottom: 2px;
 }
 
-.custom-file-label:hover {
-  background-color: #357ABD;
+.table-item:hover {
+  background-color: #f3f4f6;
 }
 
-.form-group input[type="file"],
-.form-group select {
-    flex: 1; /* Allows the input to take remaining space */
-    padding: 8px; /* Adds padding for better appearance */
-    max-width: 300px; /* Optional: control the max width */
-    border: 1px solid #ccc;
-    border-radius: 5px;
+.table-item.selected {
+  background-color: #e6e8eb;
 }
 
+/* Main content styles */
+.main-content {
+  flex: 1;
+  padding: 20px;
+}
 
-.form-section {
+/* Upload section */
+.upload-card {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.upload-row {
+  display: flex;
+  gap: 20px;
+  align-items: flex-end;
+}
+
+.upload-group {
   display: flex;
   flex-direction: column;
+  gap: 8px;
+}
+
+.upload-group label {
+  font-size: 14px;
+  color: #755082;
+}
+
+.file-input {
+  display: flex;
   align-items: center;
   gap: 10px;
-  width: 300px; 
 }
 
-
-
-
-/* Database Explorer Layout */
-.database-explorer {
+.choose-file-btn {
   display: flex;
-    width: 100%;
-    max-width: 1600px;
-    margin: 0 auto;
-}
-
-/* Sidebar aligned to the very left of the page */
-.sidebar {
-  width: auto;
-  min-width: 200px;
-  padding: 15px;
-  background-color: #f5f5f5;
-  border-radius: 5px;
-  margin: 0;
-  text-align: left;
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100vh;
-  overflow-y: auto;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-}
-
-/* Sidebar buttons styling */
-.sidebar ul {
-  padding: 0;
-  list-style-type: none;
-}
-
-.sidebar li {
-  margin: 8px 0;
-  cursor: pointer;
-  padding: 12px 8px;
-  border: 1px solid #d0d0d0;
-  border-radius: 5px;
-  text-align: center;
-  transition: background-color 0.3s;
-}
-
-.sidebar li:hover {
-  background-color: #e0e0e0;
-}
-
-.sidebar li.selected {
-  background-color: #d0d0d0;
-  font-weight: bold;
-}
-
-/* Main content area */
-.main-content {
-  margin-left: 220px;
-    width: calc(100% - 220px);
-    padding: 20px;
-    display: flex;
-}
-
-/* Expanded table details for better readability */
-.details {
-  width: 100%;
-  max-width: 450px;
-}
-
-.right-column {
-  flex: 1;
-  max-width: 35%;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  margin-top: -350px; /* This will move it up to align with upload dataset */
-}
-
-.details pre {
-  background-color: #ffffff;
-  padding: 25px;
-  border-radius: 8px;
-  font-size: 1em;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Light shadow for contrast */
-  max-width: 100%;
-  text-align: left; /* Aligns content to the left */
-}
-
-/* Container to hold details and sample queries side-by-side */
-.content-container {
-  display: flex;
-    width: 100%;
-    gap: 20px;
-}
-
-
-.details-card {
-  background-color: #ffffff; /* White background for the card */
-  border: 1px solid #e5e5e5; /* Light gray border */
-  border-radius: 10px; /* Rounded corners */
-  padding: 20px; /* Space inside the box */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-  width: 100%;
-  max-width: 600px; /* Limit the card width */
-  overflow-y: auto; /* Enable vertical scrolling */
-  max-height: 300px; /* Limit the card height to allow scrolling */
-  text-align: center;
-}
-
-.details-card h4 {
-  font-size: 1.25rem;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 15px;
-}
-
-/* Container for all sample queries with a common scroll */
-.sample-queries {
-  flex: 1;
-  max-width: 40%;
-  overflow-y: auto;
-}
-
-.sample-queries h4 {
-  font-size: 1.25rem;
-  font-weight: bold;
-  color: #333; /* Darker text for better readability */
-  margin-bottom: 15px; /* Space below the heading */
-  text-align: center;
-  width: 100%;
-}
-
-.sample-queries button {
-  padding: 12px 20px; /* Increase padding for better aesthetics */
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #755082;
+  color: white;
   border: none;
-  border-radius: 8px; /* Rounded corners */
-  font-size: 1rem;
-  font-weight: bold;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s; /* Smooth transitions */
 }
 
+.file-name {
+  color: #6b7280;
+  font-size: 14px;
+}
 
-.sample-queries-content {
-  max-height: 300px; /* Adjust this height as needed */
-  overflow-y: auto;
-  overflow-x: hidden; /* Prevent horizontal scrolling */
-  padding: 10px;
-  background-color: #f5f5f5;
+.database-select {
+  padding: 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  min-width: 120px;
+}
+
+.upload-dataset-btn {
+  padding: 8px 16px;
+  background: #755082;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* Query interface */
+.query-interface {
+  background: white;
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-/* Add spacing between each query */
-.sample-queries-content ul {
-  padding: 0;
-  margin: 0;
-  list-style-type: none;
+.tab-list {
+  display: flex;
+  padding: 12px;
+  gap: 16px;
+  border-bottom: 1px solid #eee;
 }
 
-.sample-queries-content li {
-  margin-bottom: 25px; /* Space between queries */
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  font-size: 14px;
 }
 
-.sample-queries-content li pre {
-  margin: 0;
+.tab-btn.active {
+  color: #2563eb;
+  border-bottom: 2px solid #2563eb;
+}
+
+.tab-btn .icon {
+  font-size: 16px;
+}
+
+.query-editor-card {
   padding: 20px;
-  background-color: #ffffff;
-  border-radius: 5px;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
 }
 
-/* Container for construct-based queries */
-.construct-queries {
-  margin-top: 30px;
-  padding: 10px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+.query-input {
   width: 100%;
-  max-width: 600px;
-  text-align: left;
+  min-height: 200px;
+  padding: 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-family: monospace;
+  margin-bottom: 16px;
+  resize: vertical;
+  box-shadow: 0 0 10px rgba(127, 68, 145, 0.2);
 }
 
-/* Heading for the construct-based queries section */
-.construct-queries h4 {
-  margin-bottom: 10px;
-  font-size: 1.2em;
-  font-weight: bold;
-  color: #333;
-  text-align: center;
+.query-input:focus {
+  outline: none;
+  border-color: #a486c6; /* Darker purple for focus */
+  box-shadow: 0 0 8px rgba(78, 42, 122, 0.5); /* Glow effect for focus */
 }
 
-/* Buttons for construct-based query actions */
-.construct-queries button {
-  margin: 5px;
-  padding: 10px 15px;
-  font-size: 0.9em;
-  color: #fff;
-  background-color: #007bff;
+.submit-query-btn {
+  padding: 8px 16px;
+  background: #755082;
+  color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.3s;
 }
 
-.construct-queries button:hover {
-  background-color: #0056b3;
-}
-
-/* Display construct-based queries in a scrollable section */
-.construct-queries-content {
-  max-height: 300px; /* Adjust height if needed */
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 10px;
-  background-color: #f5f5f5;
+.primary-button {
+  background-color: white;
+  border: 2px solid #755082;  /* Purple border */
+  color: #755082;             /* Purple text */
+  padding: 10px 20px;
+  font-size: 14px;
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-/* Style for each construct-based query */
-.construct-queries-content ul {
+
+/* Details card */
+.details-card,
+.sample-queries-card,
+.query-builder-card {
+  padding: 20px;
+}
+
+.queries-list,
+.queries-grid {
+  margin-top: 20px;
+  display: grid;
+  gap: 16px;
+}
+
+.queries-grid {
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+.query-item {
+  background: #f9fafb;
+  padding: 16px;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.query-item h4 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.query-item pre {
+  background: white;
+  padding: 12px;
+  border-radius: 4px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.button-group {
   display: flex;
-  flex-wrap: wrap; /* Allow items to wrap to the next line if space runs out */
-  gap: 15px; /* Add space between query cards */
-  padding: 0;
-  margin: 0;
-  list-style-type: none;
+  gap: 8px;
+  margin-bottom: 16px;
 }
 
-.construct-queries-content li {
-  flex: 1 1 calc(33% - 15px); /* Take up one-third of the available width, minus gap space */
-  max-width: calc(33% - 15px); /* Ensure consistency in card size */
-  background-color: #f9f9f9;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for a clean look */
-  padding: 15px;
-  font-family: 'Courier New', Courier, monospace; /* Use a monospaced font for code-like text */
-  white-space: pre-wrap; /* Ensure long lines wrap properly */
-  word-wrap: break-word; /* Break long words if necessary */
-  transition: transform 0.2s ease, box-shadow 0.2s ease; /* Add hover effects */
-}
-
-.construct-queries-content li:hover {
-  transform: translateY(-5px); /* Slight lift effect on hover */
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Slightly more prominent shadow */
-}
-
-.construct-queries-content li strong {
-  display: block;
-  font-size: 1.1em; /* Make the description text slightly larger */
-  font-weight: bold;
-  margin-bottom: 10px;
-  color: #333; /* Dark text for better readability */
-}
-
-.construct-queries-content li pre {
-  margin: 0;
-  padding: 10px;
-  background-color: #fff;
-  border-radius: 5px;
-  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05); /* Subtle inner shadow for the query box */
-  overflow-x: auto; /* Add horizontal scroll for long queries */
-  font-size: 0.9em; /* Slightly smaller text for code */
+.button-group button {
+  padding: 8px 16px;
+  background: #755082;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
 }
 
 
 
-.details pre, .construct-queries-content {
-  max-height: 300px; /* Adjust as needed */
-  overflow-y: auto; /* Enable scrolling */
+.no-queries {
+  text-align: center;
+  color: #6b7280;
+  padding: 20px;
 }
 
-
-
-/* Mobile responsiveness */
-@media screen and (max-width: 1200px) {
-  .details {
-      margin-left: -50px;
+/* Responsive styles */
+@media (max-width: 768px) {
+  .explorer-container {
+    flex-direction: column;
   }
   
-  .right-column {
-      margin-top: -200px;
-  }
-}
-
-@media screen and (max-width: 992px) {
-  .details {
-      margin-left: 0;
-  }
-}
-
-@media screen and (max-width: 768px) {
-  .database-explorer {
-      flex-direction: column;
-  }
-
-  .main-content {
-      margin-left: 0;
-      padding: 10px;
-  }
-
-  .content-container {
-      flex-direction: column;
-      align-items: center;
-  }
-
-  .details,
-  .right-column {
-      flex: none;
-      width: 100%;
-      max-width: 100%;
-      margin-left: 0;
-  }
-
-  .right-column {
-    margin-top: 20px;
-    position: static;
-}
-
-.details-card,
-.sample-queries,
-.construct-based-queries {
+  .sidebar {
     width: 100%;
-    margin: 10px 0;
-}
-
-.sidebar {
-    width: 100%;
-    position: static;
-    height: auto;
-}
-}
-
-
-
-
-
-
-.sidebar {
-  width: auto;
-  min-width: 200px;
-  max-width: 15%; /* Set a max width */
-  overflow-y: auto; /* Allow scrolling for long lists */
-  /* position: fixed;
-  left: 0;
-  top: 0;
-  height: 100vh;
-  background-color: #f5f5f5;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); */
+  }
+  
+  .upload-row {
+    flex-direction: column;
+  }
+  
+  .tab-list {
+    overflow-x: auto;
+  }
+  
+  .queries-grid {
+    grid-template-columns: 1fr;
+  }
 }
