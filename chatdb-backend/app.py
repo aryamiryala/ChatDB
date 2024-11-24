@@ -303,39 +303,80 @@ def get_mysql_sample_queries_with_construct(table_name, construct):
     quantitative_fields = [field for field, field_type in fields.items() if field_type in ['int', 'float']]
     categorical_fields = [field for field, field_type in fields.items() if field_type == 'string']
 
-    # Define query templates for constructs
+    # Define construct-based query templates
     construct_query_patterns = {
-        "group_by": ("Count of <A> by <B>", "SELECT `{B}`, COUNT(`{A}`) AS count_{A} FROM `{table}` GROUP BY `{B}`;"),
-        "order_by": ("List of <A> ordered by <B>", "SELECT `{A}`, `{B}` FROM `{table}` ORDER BY `{B}` DESC LIMIT 10;"),
-        "having": ("Count of <A> by <B> with HAVING clause", 
+        "group_by": ("Count of <A> by <B>",
+                     "SELECT `{B}`, COUNT(`{A}`) AS count_{A} FROM `{table}` GROUP BY `{B}`;"),
+        "order_by": ("List <A> ordered by <B>",
+                     "SELECT `{A}`, `{B}` FROM `{table}` ORDER BY `{B}` DESC LIMIT 10;"),
+        "having": ("Group by <B> with count > 1",
                    "SELECT `{B}`, COUNT(`{A}`) AS count_{A} FROM `{table}` GROUP BY `{B}` HAVING COUNT(`{A}`) > 1;"),
-        "join": ("Join <A> from <B>", 
-                 "SELECT t1.`{A}`, t2.`{B}` FROM `{table}` t1 JOIN `{table}` t2 ON t1.`{A}` = t2.`{A}`;")
+        "join": ("Join <A> from <B>",
+                 "SELECT t1.`{A}`, t2.`{B}` FROM `{table1}` t1 JOIN `{table2}` t2 ON t1.`{key1}` = t2.`{key2}`;")
     }
 
-    # Check if the construct is supported
+    # Validate construct
     if construct not in construct_query_patterns:
         return jsonify({"error": f"Unsupported construct: {construct}"}), 400
 
-    # Get the construct-specific pattern
-    description_template, query_template = construct_query_patterns[construct]
-
-    # Generate multiple queries based on the fields
     sample_queries = []
-    for _ in range(min(3, len(quantitative_fields) * len(categorical_fields))):  # Limit to 3 queries
-        if quantitative_fields and categorical_fields:
-            A = random.choice(quantitative_fields)
-            B = random.choice(categorical_fields)
-            query = (
-                query_template.replace("{A}", A)
-                              .replace("{B}", B)
-                              .replace("{table}", table_name)
-            )
-            description = description_template.replace("<A>", A).replace("<B>", B)
-            sample_queries.append({"description": description, "query": query})
 
-    # Return the generated queries
+    if construct == "join":
+        mydb = get_mysql_connection()
+        cursor = mydb.cursor()
+        cursor.execute("SHOW TABLES;")
+        all_tables = [table[0] for table in cursor.fetchall()]
+        cursor.close()
+        mydb.close()
+
+        if len(all_tables) > 1:
+            all_tables.remove(table_name)  
+
+        for _ in range(3):  
+            if all_tables:
+                target_table = random.choice(all_tables)
+                target_fields = get_mysql_field_info(target_table)
+
+                matching_fields = [
+                    (key1, key2) for key1, key2 in zip(fields.keys(), target_fields.keys())
+                    if fields[key1] == target_fields[key2]  # Match field types
+                    and key1 != key2  # Avoid exact name matches
+                ]
+
+                if matching_fields:
+                    key1, key2 = random.choice(matching_fields)
+                    A = random.choice(list(fields.keys()))
+                    B = random.choice(list(target_fields.keys()))
+
+                    query = (
+                        construct_query_patterns["join"][1]
+                        .replace("{A}", A)
+                        .replace("{B}", B)
+                        .replace("{table1}", table_name)
+                        .replace("{table2}", target_table)
+                        .replace("{key1}", key1)
+                        .replace("{key2}", key2)
+                    )
+
+                    description = f"Join `{table_name}` with `{target_table}` on `{table_name}.{key1} = {target_table}.{key2}`"
+                    sample_queries.append({"description": description, "query": query})
+    else:
+        # Handle other constructs (group_by, order_by, having)
+        if quantitative_fields and categorical_fields:
+            for _ in range(3):
+                A = random.choice(quantitative_fields)
+                B = random.choice(categorical_fields)
+                description_template, query_template = construct_query_patterns[construct]
+                query = (
+                    query_template.replace("{A}", A)
+                                  .replace("{B}", B)
+                                  .replace("{table}", table_name)
+                )
+                description = description_template.replace("<A>", A).replace("<B>", B)
+                sample_queries.append({"description": description, "query": query})
+
     return jsonify({"queries": sample_queries})
+
 
 
 @app.route('/mongo/sample-queries/<collection_name>', methods=['GET'])
@@ -370,6 +411,7 @@ def get_mongo_sample_queries(collection_name):
     return jsonify({"queries": sample_queries[:3]})
 
 
+
 @app.route('/mongo/sample-queries/<collection>/<construct>', methods=['GET'])
 def get_mongo_sample_queries_with_construct(collection, construct):
     fields = get_mongo_field_info(collection)
@@ -397,27 +439,35 @@ def get_mongo_sample_queries_with_construct(collection, construct):
     sample_queries = []
 
     if construct == "join":
-        # Generate 3 examples of join queries
-        for _ in range(3):  # Generate three examples
-            random_field_1 = random.choice(list(fields.keys()))
-            random_field_2 = random.choice(list(fields.keys()))
-            query = {
-                "$lookup": {
-                    "from": "enrollments",  # Target collection for this example
-                    "localField": random_field_1,  # Random field from the current collection
-                    "foreignField": random_field_2,  # Random field from the target collection
-                    "as": "joined_results"
+        # Generate join queries using random collections and fields
+        all_collections = mongo_db.list_collection_names()
+        all_collections.remove(collection)  
+        
+        for target_collection in all_collections:
+            target_fields = get_mongo_field_info(target_collection)
+
+            # Find matching fields between the source and target collection
+            matching_fields = set(fields.keys()).intersection(target_fields.keys())
+
+            for field in matching_fields:
+                query = {
+                    "$lookup": {
+                        "from": target_collection,
+                        "localField": field,
+                        "foreignField": field,
+                        "as": "joined_results"
+                    }
                 }
-            }
-            description = f"Join `{collection}` with `enrollments` on `{collection}.{random_field_1} = enrollments.{random_field_2}`"
-            sample_queries.append({"description": description, "query": query})
+                description = f"Join `{collection}` with `{target_collection}` on `{field}`"
+                sample_queries.append({"description": description, "query": query})
+
+        if not sample_queries:
+            return jsonify({"error": "No valid joins found for this collection"}), 400
+
     else:
         # Generate other construct queries
-        quantitative_fields = [field for field, field_type in fields.items() if field_type in ['int', 'float']]
-        categorical_fields = [field for field, field_type in fields.items() if field_type == 'string']
-
         if quantitative_fields and categorical_fields:
-            for _ in range(3):  # Generate three examples
+            for _ in range(3):  
                 A = random.choice(quantitative_fields)
                 B = random.choice(categorical_fields)
                 description_template, query_template = construct_query_patterns[construct]
@@ -432,18 +482,76 @@ def get_mongo_sample_queries_with_construct(collection, construct):
     return jsonify({"queries": sample_queries})
 
 
+@app.route('/mysql/join', methods=['POST'])
+def perform_mysql_join():
+    data = request.json
+    table_name = data.get("table_name")  
+    target_table = data.get("target_table")  
+    local_field = data.get("local_field")  
+    foreign_field = data.get("foreign_field")  
+
+    if not all([table_name, target_table, local_field, foreign_field]):
+        return jsonify({"error": "Missing required fields"}), 400
+
+    source_fields = get_mysql_field_info(table_name)
+    target_fields = get_mysql_field_info(target_table)
+
+    if local_field not in source_fields or foreign_field not in target_fields:
+        return jsonify({
+            "error": f"Invalid fields: {local_field} or {foreign_field} not found in the respective tables"
+        }), 400
+
+    # Validate field type compatibility
+    if source_fields[local_field] != target_fields[foreign_field]:
+        return jsonify({
+            "error": f"Field types do not match: {local_field} ({source_fields[local_field]}) and {foreign_field} ({target_fields[foreign_field]})"
+        }), 400
+
+    # Perform the join query
+    try:
+        mydb = get_mysql_connection()
+        cursor = mydb.cursor(dictionary=True)
+
+        query = f"""
+        SELECT t1.`{local_field}`, t2.`{foreign_field}`
+        FROM `{table_name}` t1
+        JOIN `{target_table}` t2
+        ON t1.`{local_field}` = t2.`{foreign_field}`;
+        """
+        cursor.execute(query)
+        results = cursor.fetchall()
+        cursor.close()
+        mydb.close()
+
+        return jsonify({"results": results})
+    except Exception as e:
+        return jsonify({"error": f"Failed to perform join: {str(e)}"}), 500
+    
 
 @app.route('/mongo/join', methods=['POST'])
 def perform_mongo_join():
-    data = request.json  # Get data from the POST request
-    collection = data.get("collection")  # Source collection
-    from_collection = data.get("from_collection")  # Target collection
-    local_field = data.get("local_field")  # Local field in source collection#755082
-    foreign_field = data.get("foreign_field")  # Foreign field in target collection
+    data = request.json  
+    collection = data.get("collection") 
+    from_collection = data.get("from_collection")  
+    local_field = data.get("local_field") 
+    foreign_field = data.get("foreign_field")  
 
-    # Ensure all required fields are present
     if not all([collection, from_collection, local_field, foreign_field]):
         return jsonify({"error": "Missing required fields"}), 400
+
+    source_fields = get_mongo_field_info(collection)
+    target_fields = get_mongo_field_info(from_collection)
+
+    if local_field not in source_fields or foreign_field not in target_fields:
+        return jsonify({
+            "error": f"Invalid fields: {local_field} or {foreign_field} not found in the respective collections"
+        }), 400
+
+    # Validate field compatibility
+    if source_fields[local_field] != target_fields[foreign_field]:
+        return jsonify({
+            "error": f"Field types do not match: {local_field} ({source_fields[local_field]}) and {foreign_field} ({target_fields[foreign_field]})"
+        }), 400
 
     # Build the $lookup query
     query = [
@@ -452,12 +560,11 @@ def perform_mongo_join():
                 "from": from_collection,
                 "localField": local_field,
                 "foreignField": foreign_field,
-                "as": "joined_results"  # Output field for joined data
+                "as": "joined_results" 
             }
         }
     ]
 
-    # Execute the query
     try:
         results = list(mongo_db[collection].aggregate(query))
         # Convert ObjectId to string for JSON compatibility
