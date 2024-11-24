@@ -107,12 +107,25 @@ const DatabaseExplorer = ({
             </div>
           )}
 
-          {selectedTab === "details" && tableDetails && (
-            <div className="details-card">
-              <h3>Table Details</h3>
-              <pre>{JSON.stringify(tableDetails, null, 2)}</pre>
-            </div>
-          )}
+          {selectedTab === "details" && (
+              <div className="details-card">
+                {tableDetails && (
+                  <>
+                    <h3>Table Details</h3>
+                    <pre>{JSON.stringify(tableDetails, null, 2)}</pre>
+                  </>
+                )}
+                {collectionDetails && (
+                  <>
+                    <h3>Collection Details</h3>
+                    <pre>{JSON.stringify(collectionDetails, null, 2)}</pre>
+                  </>
+                )}
+                {!tableDetails && !collectionDetails && (
+                  <p>Select a table or collection to view details</p>
+                )}
+              </div>
+            )}
 
           {selectedTab === "sample" && (
             <div className="sample-queries-card">
@@ -146,9 +159,6 @@ const DatabaseExplorer = ({
                 </button>
                 <button onClick={() => fetchConstructBasedQueries("having")}>
                   Having
-                </button>
-                <button onClick={() => fetchConstructBasedQueries("join")}>
-                  Join
                 </button>
               </div>
               {constructQueries.length > 0 ? (
