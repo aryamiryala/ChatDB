@@ -13,13 +13,19 @@ const DatabaseExplorer = ({
   selectedCollection,
   tableDetails,
   collectionDetails,
-  onSubmitQuery
+  handleNLPQuery, // Added NLP query handler as a prop
 }) => {
   const [selectedTab, setSelectedTab] = useState("editor");
   const [queryInput, setQueryInput] = useState("");
 
   const handleSubmitQuery = () => {
-    if (onSubmitQuery) onSubmitQuery(queryInput);
+    if (!queryInput.trim()) {
+      alert("Please enter a query.");
+      return;
+    }
+
+    // Call the NLP handler
+    handleNLPQuery(queryInput);
   };
 
   return (

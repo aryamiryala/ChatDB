@@ -97,6 +97,31 @@ function App() {
                 setConstructQueries([]); // Reset queries in case of an error
             });
     };
+
+    // NLP Query Handling
+    const handleNLPQuery = (queryInput) => {
+        if (!queryInput.trim()) {
+            alert("Please enter a query.");
+            return;
+        }
+
+        const payload = {
+            query: queryInput,
+            database: selectedTable ? "mysql" : "mongodb",
+            table_or_collection: selectedTable || selectedCollection,
+        };
+
+        axios.post("http://localhost:5001/nlp-query", payload)
+            .then(response => {
+                const { query } = response.data;
+                alert(`Generated Query:\n${query}`);
+            })
+            .catch(error => {
+                console.error("Error processing query:", error);
+                alert("Failed to process the query. Check your input and try again.");
+            });
+    };
+
     
 
     // Initial load to fetch tables and collections
@@ -130,6 +155,7 @@ function App() {
                 onSelectCollection={fetchCollectionDetails}
                 fetchSampleQueries={fetchSampleQueries}
                 fetchConstructBasedQueries={fetchConstructBasedQueries} 
+                handleNLPQuery={handleNLPQuery}
             />
         </div>
     );

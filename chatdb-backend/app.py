@@ -12,6 +12,10 @@ import os
 import numpy as np
 import random
 import re
+import spacy
+
+# Load NLP model
+nlp = spacy.load("en_core_web_sm")
 
 # Initialize the Flask app and enable CORS
 app = Flask(__name__)
@@ -443,6 +447,64 @@ def execute_query():
         return jsonify({"error": f"MySQL Error: {err}"}), 500
     except Exception as e:
         return jsonify({"error": f"An error occurred: {str(e)}"}), 500
+
+# Define SQL query patterns
+SQL_PATTERNS = [
+    ("Total <A> by <B>", "SELECT {B}, SUM({A}) AS total_{A} FROM {table} GROUP BY {B};"),
+    ("Average <A> by <B>", "SELECT {B}, AVG({A}) AS avg_{A} FROM {table} GROUP BY {B};"),
+    ("Count of <A> by <B>", "SELECT {B}, COUNT({A}) AS count_{A} FROM {table} GROUP BY {B};"),
+    ("List of <A> ordered by <B>", "SELECT {A}, {B} FROM {table} ORDER BY {B} DESC LIMIT 10;")
+]
+
+
+# Define MongoDB query patterns
+MONGO_PATTERNS = [
+    ("Total <A> by <B>", "db.{collection}.aggregate([{{ '$group': {{ '_id': '${B}', 'total_{A}': {{ '$sum': '${A}' }} }} }}])"),
+    ("Average <A> by <B>", "db.{collection}.aggregate([{{ '$group': {{ '_id': '${B}', 'avg_{A}': {{ '$avg': '${A}' }} }} }}])"),
+    ("Count of <A> by <B>", "db.{collection}.aggregate([{{ '$group': {{ '_id': '${B}', 'count_{A}': {{ '$sum': 1 }} }} }}])"),
+    ("List of <A> ordered by <B>", "db.{collection}.find({}, {{ {A}: 1, {B}: 1 }}).sort({{ {B}: -1 }}).limit(10)")
+]
+
+def match_pattern(user_query, patterns):
+    """Match the user query to a predefined pattern and generate the query"""
+    for description, template in patterns:
+        # Convert description to a regex pattern and find matches
+        # Generate the regex pattern separately
+        regex_pattern = description.lower().replace('<a>', r'(\w+)').replace('<b>', r'(\w+)')
+        match = re.search(regex_pattern, user_query.lower())
+
+        if match:
+            return template, match.groups()
+    return None, None
+
+
+@app.route('/nlp-query', methods=['POST'])
+def handle_nlp_query():
+    """Handle NLP queries to generate SQL or MongoDB queries"""
+    data = request.json
+    user_query = data.get("query")
+    db_type = data.get("database")
+    table_or_collection = data.get("table_or_collection")
+
+    if not user_query or not db_type or not table_or_collection:
+        return jsonify({"error": "Query, database, and table/collection must be provided"}), 400
+
+    # Match patterns based on database type
+    patterns = SQL_PATTERNS if db_type == "mysql" else MONGO_PATTERNS
+    template, entities = match_pattern(user_query, patterns)
+
+    if not template or not entities:
+        return jsonify({"error": "Unable to parse query. Please try again with a supported pattern."}), 400
+
+    # Substitute entities into the template
+    query = template.format(
+        A=entities[0],
+        B=entities[1],
+        table=table_or_collection if db_type == "mysql" else "",
+        collection=table_or_collection if db_type == "mongodb" else ""
+    )
+
+    return jsonify({"query": query})
 
 
 
