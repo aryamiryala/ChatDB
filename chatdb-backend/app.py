@@ -477,10 +477,9 @@ def match_pattern(user_query, patterns):
             return template, match.groups()
     return None, None
 
-
 @app.route('/nlp-query', methods=['POST'])
 def handle_nlp_query():
-    """Handle NLP queries to generate SQL or MongoDB queries"""
+    """Handle NLP queries to generate SQL or MongoDB queries and execute them"""
     data = request.json
     user_query = data.get("query")
     db_type = data.get("database")
@@ -504,8 +503,49 @@ def handle_nlp_query():
         collection=table_or_collection if db_type == "mongodb" else ""
     )
 
-    return jsonify({"query": query})
+    try:
+        if db_type == "mysql":
+            # Execute the SQL query
+            mydb = get_mysql_connection()
+            cursor = mydb.cursor(dictionary=True)
+            cursor.execute(query)
+            results = cursor.fetchall()
+            cursor.close()
+            mydb.close()
 
+            # Convert timedelta and datetime objects to strings for JSON serialization
+            for row in results:
+                for key, value in row.items():
+                    if isinstance(value, timedelta):
+                        row[key] = str(value)
+                    elif isinstance(value, datetime):
+                        row[key] = value.strftime("%Y-%m-%d %H:%M:%S")
+
+            return jsonify({"query": query, "results": results})
+
+        elif db_type == "mongodb":
+            # Parse and execute MongoDB query
+            collection = mongo_db[table_or_collection]
+
+            if "aggregate" in query:
+                # Handle aggregate queries
+                pipeline = eval(query.replace(f"db.{table_or_collection}.aggregate(", "").rstrip(")"))
+                results = list(collection.aggregate(pipeline))
+            elif "find" in query:
+                # Handle find queries
+                find_query = eval(query.replace(f"db.{table_or_collection}.find(", "").rstrip(")"))
+                results = list(collection.find(*find_query))
+            else:
+                return jsonify({"error": "Unsupported MongoDB query pattern"}), 400
+
+            # Convert MongoDB ObjectId to string
+            for doc in results:
+                doc['_id'] = str(doc['_id'])
+
+            return jsonify({"query": query, "results": results})
+
+    except Exception as e:
+        return jsonify({"error": f"An error occurred: {str(e)}"}), 500
 
 
 if __name__ == '__main__':

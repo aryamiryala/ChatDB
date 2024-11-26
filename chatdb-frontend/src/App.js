@@ -98,29 +98,29 @@ function App() {
             });
     };
 
-    // NLP Query Handling
     const handleNLPQuery = (queryInput) => {
         if (!queryInput.trim()) {
             alert("Please enter a query.");
             return;
         }
-
+    
         const payload = {
             query: queryInput,
             database: selectedTable ? "mysql" : "mongodb",
             table_or_collection: selectedTable || selectedCollection,
         };
-
+    
         axios.post("http://localhost:5001/nlp-query", payload)
             .then(response => {
-                const { query } = response.data;
-                alert(`Generated Query:\n${query}`);
+                const { query, results } = response.data;
+                alert(`Generated Query:\n${query}\n\nResults:\n${JSON.stringify(results, null, 2)}`);
             })
             .catch(error => {
                 console.error("Error processing query:", error);
                 alert("Failed to process the query. Check your input and try again.");
             });
     };
+    
 
     
 
