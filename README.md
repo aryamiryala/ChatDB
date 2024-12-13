@@ -44,12 +44,12 @@ Before running the project, make sure you have the following installed:
 
 2. Activate the virtual environment:
     On macOS/Linux:
-        ```bash
-        source venv/bin/activate
+    ```bash
+    source venv/bin/activate
     
     On windows: 
-        ```bash
-        venv\Scripts\activate
+    ```bash
+    venv\Scripts\activate
     
 3. Install the required dependencies:
     ```bash
