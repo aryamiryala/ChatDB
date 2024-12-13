@@ -62,19 +62,35 @@ Before running the project, make sure you have the following installed:
 
 ## Running the Project
 
-To run frontend:
+### To run the frontend:
 
-1) Naviagate to the chatdb-frontend folder
-2) Install required dependencies by doing npm install 
-3) Start the frontend development server by doing npm start
-4) The frontend will be available at http://localhost:3000 
+1. Navigate to the **chatdb-frontend** folder:
+   ```bash
+   cd chatdb-frontend
 
-To run backend: 
+2. Install the required dependencies:
+    ```bash
+   npm install
 
-1) Naviagate to the chatdb-backend folder 
-2) Make sure your python virtual environment is on 
-3) Start the Flask backend server by doing python3 app.py 
-4) The backend will be available at http://localhost:5001
+3. Start the frontend development server:
+    ```bash
+   npm start
+
+4. The frontend will be available at http://localhost:3000
+
+### To run the backend:
+
+1. Navigate to the **chatdb-backend** folder:
+   ```bash
+   cd chatdb-backend
+
+2. Make sure your Python virtual environment is activated (reference section above this on how to install and start it)
+
+3. Start the Flask backend server:
+    ```bash
+   python3 app.py
+
+4. The backend will be available at http://localhost:5001
 
 ## Features
 **Database Exploration**: Allows users to browse MySQL tables and MongoDB collections, view their structure, and fetch sample data.  
