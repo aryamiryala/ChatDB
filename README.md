@@ -43,13 +43,17 @@ Before running the project, make sure you have the following installed:
    python3 -m venv venv
 
 2. Activate the virtual environment:
-    On macOS/Linux:
-    ```bash
-    source venv/bin/activate
-    
-    On windows: 
-    ```bash
-    venv\Scripts\activate
+
+   - On macOS/Linux:
+     ```bash
+     source venv/bin/activate
+     ```
+
+   - On Windows:
+     ```bash
+     venv\Scripts\activate
+     ```
+
     
 3. Install the required dependencies:
     ```bash
