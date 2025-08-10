@@ -116,12 +116,11 @@ Before running the project, make sure you have the following installed:
     ```bash
    pip install fastapi uvicorn[standard] python-multipart pydantic
 
-
 4. Start the FastAPI backend server: 
    ```bash
    uvicorn fastapi_app:app --reload --port 5001
 
-5. The backend will be avaliable at http://localhost:5001
+5. The backend will be avaliable at http://localhost:5001 <br>
    Interactive API docs will be avaliable at http://localhost:5001/docs
 
 
