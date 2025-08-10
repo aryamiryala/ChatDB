@@ -31,7 +31,7 @@ The backend is powered by **Flask** and communicates with MySQL and MongoDB. It 
 
 - **`backend/app.py`**: The core backend file containing the API routes and logic for interacting with MySQL and MongoDB databases. This includes endpoints for uploading datasets, querying databases, and generating sample SQL/NoSQL queries.
 
-- **`backend/fastapi_app.py`**: The FastAPI backend containing equivalent routes, enhanced with Pydantic validation, async-ready structure, and interactive docs.
+- **`backend/fastapi_app.py`**: The FastAPI backend containing equivalent routes, enhanced with Pydantic validation, async-ready structure, and interactive docs at **`docs`**.
 
 
 
@@ -90,7 +90,7 @@ Before running the project, make sure you have the following installed:
 
 4. The frontend will be available at http://localhost:3000
 
-### To run the backend:
+### To run the backend with Flask:
 
 1. Navigate to the **chatdb-backend** folder:
    ```bash
@@ -103,6 +103,28 @@ Before running the project, make sure you have the following installed:
    python3 app.py
 
 4. The backend will be available at http://localhost:5001
+
+### To run the backend with FastAPI:
+
+1. Navigate to the **chatdb-backend** folder:
+   ```bash
+   cd chatdb-backend
+
+2. Make sure your Python virtual environment is activated (reference section above this on how to install and start it)
+
+3. Install FastAPI dependencies (if not already installed):
+    ```bash
+   pip install fastapi uvicorn[standard] python-multipart pydantic
+
+
+4. Start the FastAPI backend server: 
+   ```bash
+   uvicorn fastapi_app:app --reload --port 5001
+
+5. The backend will be avaliable at http://localhost:5001
+   Interactive API docs will be avaliable at http://localhost:5001/docs
+
+
 
 ## Features
 **Database Exploration**: Allows users to browse MySQL tables and MongoDB collections, view their structure, and fetch sample data.  
