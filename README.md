@@ -31,7 +31,7 @@ The backend is powered by **Flask** and communicates with MySQL and MongoDB. It 
 
 - **`backend/app.py`**: The core backend file containing the API routes and logic for interacting with MySQL and MongoDB databases. This includes endpoints for uploading datasets, querying databases, and generating sample SQL/NoSQL queries.
 
-- **`backend/fastapi_app.py`**: The FastAPI backend containing equivalent routes, enhanced with Pydantic validation, async-ready structure, and interactive docs at **`docs`**.
+- **`backend/fastapi_app.py`**: The FastAPI backend containing equivalent routes, enhanced with Pydantic validation, async-ready structure, and interactive docs at **`/docs`**.
 
 
 
