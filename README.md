@@ -66,10 +66,6 @@ Before running the project, make sure you have the following installed:
      venv\Scripts\activate
      ```
 
-    
-3. Install the required dependencies:
-    ```bash
-    pip install -r requirements.txt
 
 
 ## Running the Project
