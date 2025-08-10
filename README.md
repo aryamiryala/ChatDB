@@ -2,7 +2,15 @@
 
 ## Overview
 
-**ChatDB** is an intelligent database companion designed to simplify querying and interacting with both **MySQL** and **MongoDB** databases. It enables users to generate sample queries, run queries through natural language input, and explore database tables and collections with ease. Built with a **React** frontend and a **Flask** backend, ChatDB facilitates smooth communication between users and the databases.
+**ChatDB** is an intelligent database companion designed to simplify querying and interacting with both **MySQL** and **MongoDB** databases. It enables users to generate sample queries, run queries through natural language input, and explore database tables and collections with ease. The frontend is built with **React** and the backend run on either **Flask or FastAPI**.
+
+FastAPI has been incorportated alongside Flask backend to provide:
+
+- **Better performance** with asynchronous request handling.
+- **Built-in data validation** via Pydantic models.
+
+Gives option to run ChatDB on Flask for simplicity or FastAPI for enhanced speed and validation. 
+
 
 ---
 
@@ -17,11 +25,15 @@ The frontend serves as the user interface, providing features to explore databas
 - **`frontend/src/components/FileUpload.js`**: Handles file uploads, allowing users to upload CSV or JSON files to populate either MySQL or MongoDB databases.
 - **`frontend/src/App.css`**: Contains the styles for frontend components, including layout, color schemes, and interactive elements.
 
-### **Backend** (Flask-based)
+### **Backend** (Flask & FastAPI - based)
 
 The backend is powered by **Flask** and communicates with MySQL and MongoDB. It processes natural language queries, manages database exploration, and generates SQL/NoSQL queries.
 
 - **`backend/app.py`**: The core backend file containing the API routes and logic for interacting with MySQL and MongoDB databases. This includes endpoints for uploading datasets, querying databases, and generating sample SQL/NoSQL queries.
+
+- **`backend/fastapi_app.py`**: The FastAPI backend containing equivalent routes, enhanced with Pydantic validation, async-ready structure, and interactive docs.
+
+
 
 ---
 
@@ -94,8 +106,14 @@ Before running the project, make sure you have the following installed:
 
 ## Features
 **Database Exploration**: Allows users to browse MySQL tables and MongoDB collections, view their structure, and fetch sample data.  
+
 **File Upload**: Users can upload CSV or JSON files to populate either MySQL or MongoDB.  
-**Sample Queries**: Users can request sample queries for a selected table or collection, including query constructs like GROUP BY, ORDER BY, and HAVING.  
-**Construct Queries**: Users can fetch queries based on specific constructs like GROUP BY or ORDER BY and view sample queries generated using these constructs.  
+
+**Sample Queries**: Users can request sample queries for a selected table or collection, including query constructs like GROUP BY, ORDER BY, and HAVING. 
+
+**Construct Queries**: Users can fetch queries based on specific constructs like GROUP BY or ORDER BY and view sample queries generated using these constructs. 
+
 **Natural Language Querying**: Users can input natural language queries, which the backend processes to generate the corresponding SQL or MongoDB query and return results.
+
+**FastAPI Mode**: Run the backend with FastAPI for async performance, built-in validation, and auto-generated API documentation.
 
